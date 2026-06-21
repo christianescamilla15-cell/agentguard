@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentguard"
+version = "0.1.0"
+description = "Safety guardrails for autonomous agents — 8 hard rules + crash-safe state. Zero dependencies."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "Christian Hernández Escamilla", email = "christianescamilla15@gmail.com" }
+]
+keywords = ["ai", "agents", "llm", "safety", "guardrails", "policy", "tool-use"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "pytest-cov"]
+
+[project.urls]
+Homepage = "https://github.com/christianescamilla15-cell/agentguard"
+Issues = "https://github.com/christianescamilla15-cell/agentguard/issues"
+"Related project" = "https://github.com/christianescamilla15-cell/treasuryforge"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentguard"]
