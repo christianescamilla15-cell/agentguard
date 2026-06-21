@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>agentguard — Live Playground · Safety Guardrails for AI Agents</title>
+<meta name="description" content="Interactive playground for agentguard: define a policy, submit proposed actions, watch the 8 hard rules decide ALLOW or DENY in real time.">
+<meta name="theme-color" content="#0a0e1a">
+<meta property="og:title" content="agentguard — Live Playground"/>
+<meta property="og:description" content="Define a policy. Submit actions. Watch 8 hard rules decide. The policy never trusts the agent."/>
+<link rel="stylesheet" href="./styles.css"/>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="https://github.com/christianescamilla15-cell/agentguard">
+      <span class="brand__mark">🔒</span>
+      <span class="brand__name">agentguard</span>
+      <span class="brand__tag">Live Playground</span>
+    </a>
+    <nav class="topbar__nav">
+      <a href="https://github.com/christianescamilla15-cell/agentguard#30-second-example">30-sec example</a>
+      <a href="https://github.com/christianescamilla15-cell/agentguard">Source ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+  <section class="hero">
+    <p class="eyebrow">Interactive playground · agentguard 0.1.0</p>
+    <h1>The policy <em>never</em> trusts the agent.</h1>
+    <p class="lede">
+      Configure a policy. Submit proposed actions on the left. Every action runs through the same
+      8 hard rules in the same order as <code>agentguard.PolicyEngine.evaluate()</code>. Allowed
+      actions are recorded; denied ones are logged with the exact rule that fired and the structured
+      reason. Snapshot &amp; restore to prove crash-safety.
+    </p>
+    <div class="quickactions">
+      <button class="btn" data-preset="benign">Run 5 benign actions</button>
+      <button class="btn btn--danger" data-preset="attack">Run 10 attack actions</button>
+      <button class="btn" data-preset="snapshot">Snapshot · kill · restore</button>
+      <button class="btn btn--ghost" id="btn-reset">Reset state</button>
+    </div>
+  </section>
+
+  <div class="grid">
+
+    <!-- LEFT: POLICY CONFIG + SUBMIT -->
+    <aside class="col">
+      <section class="card">
+        <h3 class="card__title">① Policy config</h3>
+        <p class="card__hint">Immutable per session. The agent cannot mutate its own limits.</p>
+        <label class="field">
+          <span>allowed_tools (comma-sep)</span>
+          <input id="cfg-tools" type="text" value="web_search,read_file,write_note"/>
+        </label>
+        <div class="field--row">
+          <label class="field"><span>max_cost_per_call</span><input id="cfg-cap" type="number" step="0.01" value="1.00"/></label>
+          <label class="field"><span>max_calls_per_window</span><input id="cfg-rate" type="number" value="5"/></label>
+        </div>
+        <div class="field--row">
+          <label class="field"><span>window_seconds</span><input id="cfg-window" type="number" value="60"/></label>
+          <label class="field"><span>max_cost_burn (lifetime)</span><input id="cfg-burn" type="number" step="0.01" value="10.00"/></label>
+        </div>
+        <div class="field--row">
+          <label class="field"><span>max_cost_per_window</span><input id="cfg-spend" type="number" step="0.01" value="3.00"/></label>
+          <label class="field"><span>remaining_budget (USD)</span><input id="cfg-budget" type="number" step="0.01" value="20.00"/></label>
+        </div>
+        <label class="checkbox">
+          <input id="cfg-kill" type="checkbox"/>
+          <span>kill_switch (denies everything)</span>
+        </label>
+        <button class="btn btn--block" id="btn-apply">Apply policy</button>
+      </section>
+
+      <section class="card">
+        <h3 class="card__title">② Propose action</h3>
+        <p class="card__hint">Untrusted input from the agent. PolicyEngine decides ALLOW or DENY.</p>
+        <label class="field">
+          <span>tool</span>
+          <select id="act-tool">
+            <option value="web_search">web_search</option>
+            <option value="read_file">read_file</option>
+            <option value="write_note">write_note</option>
+            <option value="rm_rf_root">rm_rf_root (not in allowlist)</option>
+            <option value="charge_card">charge_card (not in allowlist)</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>cost (USD)</span>
+          <input id="act-cost" type="number" step="0.01" value="0.05"/>
+        </label>
+        <button class="btn btn--primary btn--block" id="btn-evaluate">Evaluate</button>
+      </section>
+    </aside>
+
+    <!-- RIGHT: VERDICT + RULES + LOG -->
+    <section class="col">
+      <section class="card card--verdict">
+        <div class="verdict" id="verdict">
+          <span class="verdict__icon" id="verdict-icon">○</span>
+          <div>
+            <div class="verdict__label" id="verdict-label">No decision yet</div>
+            <div class="verdict__reason" id="verdict-reason">Submit an action to evaluate.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3 class="card__title">③ Policy rules (in evaluation order)</h3>
+        <div class="rules" id="rules">
+          <div class="rule" data-rule="kill_switch"><span class="rule__n">1</span> kill_switch</div>
+          <div class="rule" data-rule="circuit_breaker"><span class="rule__n">2</span> circuit_breaker</div>
+          <div class="rule" data-rule="staleness"><span class="rule__n">3</span> staleness</div>
+          <div class="rule" data-rule="allowlist"><span class="rule__n">4</span> allowlist</div>
+          <div class="rule" data-rule="per_call_cap"><span class="rule__n">5</span> per_call_cap</div>
+          <div class="rule" data-rule="rate_limit"><span class="rule__n">6</span> rate_limit</div>
+          <div class="rule" data-rule="spend_budget"><span class="rule__n">7</span> spend_budget</div>
+          <div class="rule" data-rule="solvency"><span class="rule__n">8</span> solvency</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3 class="card__title">④ State</h3>
+        <div class="state">
+          <div class="state__row"><span>actions executed</span><span id="st-exec">0</span></div>
+          <div class="state__row"><span>total cost spent</span><span id="st-spent">$0.00</span></div>
+          <div class="state__row"><span>remaining budget</span><span id="st-budget">$20.00</span></div>
+          <div class="state__row"><span>breaker</span><span id="st-breaker">○ OK</span></div>
+          <div class="state__row"><span>actions this window</span><span id="st-windowcount">0</span></div>
+          <div class="state__row"><span>cost this window</span><span id="st-windowspent">$0.00</span></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3 class="card__title">⑤ Event log</h3>
+        <div class="log" id="log">
+          <div class="log__entry log__entry--system">
+            <span class="log__t">init</span>
+            <span class="log__m">policy applied · waiting for actions</span>
+          </div>
+        </div>
+      </section>
+    </section>
+
+  </div>
+
+  <footer class="footer">
+    <p>
+      Live playground for <a href="https://github.com/christianescamilla15-cell/agentguard"><code>agentguard</code></a>.
+      JavaScript port of <code>agentguard/policy.py</code> for browser execution.
+      The real implementation is pure-Python with zero dependencies, 11 tests passing.
+    </p>
+    <p>
+      Pattern origin: <a href="https://github.com/christianescamilla15-cell/treasuryforge">TreasuryForge</a>
+      · author <a href="https://github.com/christianescamilla15-cell">Christian Hernández Escamilla</a>
+    </p>
+  </footer>
+
+</main>
+
+<script src="./demo.js"></script>
+</body>
+</html>
