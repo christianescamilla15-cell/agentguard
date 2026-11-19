@@ -31,7 +31,6 @@ reporte vacío cuenta como fallo.
 
 | Excepción | Motivo | Revisar |
 |---|---|---|
-| `herramientas/verificar_reportes.py` excluido de Semgrep (sólo ese archivo, no la regla) | copia literal de la plantilla; lee con `xml.etree` el JUnit que genera el propio job: entrada propia, no de terceros | si el archivo empieza a leer XML externo |
 
 Las excepciones de Trivy viven en `.trivyignore`, cada una con fecha de vencimiento y motivo (hoy: ninguna).
 
