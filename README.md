@@ -108,7 +108,7 @@ Output:
 ✓ ALLOW  read_file      cost=  0.00  →  ALLOW
 ✗ DENY   rm_rf_root     cost=  0.01  →  DENY:tool 'rm_rf_root' not in allowlist
 ✓ ALLOW  web_search     cost=  0.05  →  ALLOW
-✓ ALLOW  web_search     cost=  0.05  →  ALLOW
+✗ DENY   web_search     cost=  0.05  →  DENY:rate_limit 3/60.0s
 ✗ DENY   web_search     cost=  0.05  →  DENY:rate_limit 3/60.0s
 ✗ DENY   expensive_api  cost=  0.05  →  DENY:tool 'expensive_api' not in allowlist
 ✗ DENY   web_search     cost= 50.00  →  DENY:cost 50.0000 > cap 1.0000
