@@ -7,15 +7,14 @@ import time
 
 from agentguard import PolicyConfig, PolicyEngine, ProposedAction
 
-
 # Fake "agent" that proposes a sequence of tool calls.
 PROPOSED_CALLS = [
     ("web_search", {"q": "AI safety papers 2026"}, 0.05),
     ("read_file", {"path": "notes.md"}, 0.00),
     ("rm_rf_root", {"path": "/"}, 0.01),                  # 4. allowlist DENY
-    ("web_search", {"q": "x"}, 0.05),
-    ("web_search", {"q": "y"}, 0.05),
-    ("web_search", {"q": "z"}, 0.05),                     # 6. rate_limit DENY (cfg=3/window)
+    ("web_search", {"q": "x"}, 0.05),                     # 3rd executed call: fills the window
+    ("web_search", {"q": "y"}, 0.05),                     # 6. rate_limit DENY (cfg=3/window)
+    ("web_search", {"q": "z"}, 0.05),                     # 6. rate_limit DENY (still in window)
     ("expensive_api", {"q": "x"}, 0.05),                  # 4. allowlist DENY
     ("web_search", {"q": "huge"}, 50.0),                  # 5. per_call_cap DENY
 ]

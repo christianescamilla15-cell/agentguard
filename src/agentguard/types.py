@@ -8,6 +8,7 @@ ALLOW, the executor runs it. The policy never trusts the agent.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -27,7 +28,7 @@ class ProposedAction:
     """
 
     tool: str
-    args: dict
+    args: dict[str, Any]
     cost: float
     actor: str = ""
 
