@@ -56,6 +56,7 @@ fail_under = 95          # se reporta; la compuerta real es una prueba por regla
 [tool.ruff]
 line-length = 110
 target-version = "py310"
+extend-exclude = ["herramientas"]   # copias literales de la plantilla común del portafolio
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "RUF", "C901"]
