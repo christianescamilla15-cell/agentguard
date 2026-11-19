@@ -2,10 +2,12 @@
 
 > **Safety guardrails for autonomous agents.** 8 hard rules + crash-safe state + tamper-evident pattern. Zero dependencies. The policy engine NEVER trusts the agent.
 
+[![ci](https://github.com/christianescamilla15-cell/agentguard/actions/workflows/ci.yml/badge.svg)](https://github.com/christianescamilla15-cell/agentguard/actions/workflows/ci.yml)
+[![seguridad](https://github.com/christianescamilla15-cell/agentguard/actions/workflows/seguridad.yml/badge.svg)](https://github.com/christianescamilla15-cell/agentguard/actions/workflows/seguridad.yml)
 [![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Tests](https://img.shields.io/badge/tests-11-green.svg)](#tests)
+[![Tests](https://img.shields.io/badge/tests-237-green.svg)](#tests)
 [![Deps](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)](#)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](#)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ---
 
@@ -49,8 +51,11 @@ Denials are *structured*: every DENY message starts with `DENY:<rule>` for easy 
 
 ## Install
 
+Not published on PyPI yet: `pip install agentguard` fails today, and would install someone else's code if a third
+party ever registered the name. Install from GitHub:
+
 ```bash
-pip install agentguard
+pip install git+https://github.com/christianescamilla15-cell/agentguard
 ```
 
 Or from source:
@@ -157,7 +162,28 @@ A subprocess `os._exit(1)` test in TreasuryForge proves the breaker survives `SI
 pytest -v
 ```
 
-11 tests cover every rule (allow, kill switch, breaker trip + stay-tripped, allowlist, per-call cap, rate limit, spend budget, staleness, solvency, snapshot/restore, denied-actions-don't-consume-budget).
+237 tests (11 original + 26 rule tests + 200 seeded fuzz histories) cover every rule (allow, kill switch, breaker trip + stay-tripped, allowlist, per-call cap, rate limit, spend budget, staleness, solvency, snapshot/restore, denied-actions-don't-consume-budget), the **order** in which the 8 rules fire, every boundary, the breaker's invalid `tripped → armed` transition, and a golden file that keeps the example's output in this README honest. [`docs/reglas.md`](docs/reglas.md) maps each rule to its tests — that map is the gate; coverage (100 % lines and branches) is reported.
+
+CI runs ruff, `mypy --strict` and the suite on Python 3.10–3.13, and builds the wheel and runs the example from a clean install.
+
+## Architecture
+
+C4 model (context → containers → components) in [`docs/arquitectura/`](docs/arquitectura/README.md); decisions in [`docs/adr/`](docs/adr/): a zero-dependency library extracted from TreasuryForge, latched state that the integrator persists, and the browser playground as a JS port.
+
+## How to run
+
+```bash
+python -m venv .venv && . .venv/bin/activate
+pip install -r ci/requirements.txt -e .   # the exact toolchain CI uses
+ruff check . && mypy && pytest
+python examples/llm_tool_call_guard.py
+```
+
+Live playground: **https://agentguard-amber.vercel.app** (deployment, rollback and troubleshooting in [`RUNBOOK.md`](RUNBOOK.md)).
+
+## Security
+
+See [`SECURITY.md`](SECURITY.md): CodeQL + Semgrep, `mypy --strict`, Trivy, gitleaks over the whole history, a confidentiality filter and an SBOM on every change; every scan must prove it analyzed something. A way to get an action ALLOWed that a rule should DENY is the highest-priority report.
 
 ## Roadmap
 
