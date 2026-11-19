@@ -12,11 +12,11 @@ Un hallazgo de seguridad aquí es, sobre todo, **una forma de que una acción pa
 
 | Revisión | Herramienta | Bloquea |
 |---|---|---|
-| Análisis estático | CodeQL (Python + JS del playground) + Semgrep `p/default` | sí (Semgrep) |
+| Análisis estático | CodeQL (Python + JS del playground) + Semgrep `p/default` (imagen 1.186.0 fijada por digest) | sí (Semgrep) |
 | Tipos | mypy `--strict` | sí |
 | Dependencias | Trivy fs sobre `ci/requirements.txt` | sí, en CRITICAL/HIGH con arreglo publicado |
 | Configuración e IaC | Trivy config (hoy no hay Dockerfile ni IaC) | sí, en CRITICAL/HIGH |
-| Secretos en toda la historia | gitleaks (CI y pre-commit) | sí |
+| Secretos en toda la historia | gitleaks v8.21.2 (imagen fija; el job exige ver «N commits scanned» en la bitácora), CI y pre-commit | sí |
 | Datos de terceros | `herramientas/confidencialidad.py` (CI y pre-commit) | sí |
 | Inventario de componentes | SBOM (syft, SPDX) | no: se publica con cada versión |
 
@@ -31,7 +31,7 @@ reporte vacío cuenta como fallo.
 
 | Excepción | Motivo | Revisar |
 |---|---|---|
-| Regla `use-defused-xml-parse` excluida en Semgrep | el único XML que se lee es el JUnit que genera el propio job (`herramientas/verificar_reportes.py`, copia literal de la plantilla) | 2027-05-19 |
+| `herramientas/verificar_reportes.py` excluido de Semgrep (sólo ese archivo, no la regla) | copia literal de la plantilla; lee con `xml.etree` el JUnit que genera el propio job: entrada propia, no de terceros | si el archivo empieza a leer XML externo |
 
 Las excepciones de Trivy viven en `.trivyignore`, cada una con fecha de vencimiento y motivo (hoy: ninguna).
 
