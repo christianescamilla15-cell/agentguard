@@ -1,7 +1,5 @@
 """Validate every guardrail provably fires + crash-safe state survives."""
 
-import pytest
-
 from agentguard import PolicyConfig, PolicyEngine, ProposedAction
 
 

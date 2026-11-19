@@ -25,7 +25,9 @@ from __future__ import annotations
 
 import time
 from collections import deque
+from collections.abc import Mapping
 from dataclasses import dataclass, field
+from typing import Any
 
 from .types import ProposedAction, Verdict
 
@@ -163,7 +165,7 @@ class PolicyEngine:
         self.remaining_budget -= cost
 
     # -- crash-safe latched state -----------------------------------------
-    def snapshot(self) -> dict:
+    def snapshot(self) -> dict[str, Any]:
         """Serializable latched state — persist so a restart cannot reset
         the breaker or zero the rolling-window counters."""
         return {
@@ -174,7 +176,7 @@ class PolicyEngine:
             "remaining_budget": self.remaining_budget,
         }
 
-    def restore(self, state: dict) -> None:
+    def restore(self, state: Mapping[str, Any]) -> None:
         self._spent_total = float(state.get("spent_total", 0.0))
         self._tripped = bool(state.get("tripped", False))
         self._recent_ts = deque(float(t) for t in state.get("recent_ts", []))
@@ -182,13 +184,13 @@ class PolicyEngine:
         self.remaining_budget = float(state.get("remaining_budget", float("inf")))
 
     @staticmethod
-    def _prune_ts(dq: deque, now: float, window: float) -> None:
+    def _prune_ts(dq: deque[float], now: float, window: float) -> None:
         cutoff = now - window
         while dq and dq[0] <= cutoff:
             dq.popleft()
 
     @staticmethod
-    def _prune_spend(dq: deque, now: float, window: float) -> None:
+    def _prune_spend(dq: deque[tuple[float, float]], now: float, window: float) -> None:
         cutoff = now - window
         while dq and dq[0][0] <= cutoff:
             dq.popleft()

@@ -36,3 +36,33 @@ Issues = "https://github.com/christianescamilla15-cell/agentguard/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agentguard"]
+
+# ------------------------------------------------------------------ pytest ----
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.coverage.run]
+source = ["agentguard"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 95          # se reporta; la compuerta real es una prueba por regla (docs/reglas.md)
+
+# -------------------------------------------------------------------- ruff ----
+# Mismas familias que el proyecto hermano (treasuryforge), fijadas aquí para que el CI no dependa
+# de la configuración de quien corre ruff.
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "RUF", "C901"]
+ignore = ["RUF001", "RUF003"]   # «→», «✓» y acentos en cadenas y comentarios son deliberados
+
+# -------------------------------------------------------------------- mypy ----
+[tool.mypy]
+python_version = "3.10"
+strict = true
+files = ["src"]
