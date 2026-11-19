@@ -9,3 +9,8 @@ htmlcov/
 dist/
 build/
 *.bak
+
+# variables de entorno locales y dependencias de JS (nunca se versionan)
+.env
+.env.*
+node_modules/
