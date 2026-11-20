@@ -5,9 +5,15 @@ updates:
     directory: /ci
     schedule: { interval: weekly }
     cooldown: { default-days: 7 }   # no adoptar una versión con menos de 7 días (cadena de suministro)
+    groups:                       # menores y parches juntos: un PR por semana; las mayores van solas
+      pip-ci-menores:
+        update-types: [minor, patch]
     open-pull-requests-limit: 5
   # acciones fijadas por SHA: Dependabot sube el SHA y su comentario de versión
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
     cooldown: { default-days: 7 }   # no adoptar una versión con menos de 7 días (cadena de suministro)
+    groups:                       # menores y parches juntos: un PR por semana; las mayores van solas
+      acciones-menores:
+        update-types: [minor, patch]
